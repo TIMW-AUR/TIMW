@@ -1,0 +1,60 @@
+pkgname=rust
+pkgver=1.86.0
+pkgrel=1
+arch=(x86_64)
+makedepends=(aarch64-linux-gnu-gcc aarch64-linux-gnu-glibc clang cmake lib32-gcc-libs lib32-glibc libffi lld llvm musl musl-aarch64 ninja perl python rust wasi-libc wasm-component-ld)
+depends=(bash curl gcc gcc-libs glibc libssh2 llvm-libs openssl zlib)
+provides=(cargo rust-src rustfmt)
+conflicts=(cargo rust-src rustfmt)
+source=(rust::git+https://github.com/rust-lang/rust.git#commit=05f9846f893b09a1be1fc8560e33fc3c815cfecb)
+
+prepare() {
+  cd rust
+  cat >config.toml <<END
+profile = "dist"
+change-id = 136941
+[llvm]
+download-ci-llvm = false
+link-shared = true
+[build]
+target = ["x86_64-unknown-linux-gnu",]
+cargo = "/usr/bin/cargo"
+rustc = "/usr/bin/rustc"
+rustfmt = "/usr/bin/rustfmt"
+locked-deps = true
+vendor = false
+tools = ["cargo","clippy","rustdoc","rustfmt","rust-analyzer-proc-macro-srv","analysis","src",]
+sanitizers = true
+profiler = true
+docs = false
+[install]
+prefix = "/usr"
+[rust]
+codegen-units = 1
+codegen-units-std = 1
+debuginfo-level = 0
+debuginfo-level-std = 0
+channel = "stable"
+lld = false
+use-lld = "external"
+llvm-bitcode-linker = false
+[dist]
+compression-formats = ["gz"]
+compression-profile = "fast"
+[target.x86_64-unknown-linux-gnu]
+cc = "/usr/bin/clang"
+cxx = "/usr/bin/clang++"
+ar = "/usr/bin/llvm-ar"
+ranlib = "/usr/bin/llvm-ranlib"
+llvm-config = "/usr/bin/llvm-config"
+END
+}
+
+build() {
+  cd rust
+  DESTDIR="$srcdir/dest-rust" python ./x.py install -j "$(nproc)"
+}
+
+package() {
+  cp -a dest-rust/* "$pkgdir"
+}

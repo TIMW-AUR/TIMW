@@ -1,0 +1,22 @@
+pkgname=mold
+pkgver=2.38.1
+pkgrel=1
+arch=(x86_64)
+depends=(gcc-libs glibc libblake3 mimalloc tbb zlib zstd)
+makedepends=(cmake git mold python)
+source=(mold::git+https://github.com/rui314/mold#commit=954107e29c5b9b2eed111d364415238cf39a6979)
+
+build() {
+  cmake \
+  -S mold \
+  -B _build \
+  -D CMAKE_BUILD_TYPE=release \
+  -D CMAKE_INSTALL_PREFIX=/usr \
+  -D MOLD_LTO=ON \
+  -D MOLD_USE_MOLD=ON
+  cmake --build _build
+}
+
+package() {
+  DESTDIR="${pkgdir}" cmake --install _build
+}

@@ -1,0 +1,24 @@
+pkgname=llvm
+pkgver=20.1.4
+pkgrel=1
+arch=(x86_64)
+makedepends=(llvm cmake ninja python python-sphinx python-myst-parser python-setuptools python-psutil swig clang spirv-llvm-translator)
+depends=(gcc-libs llvm-libs gcc compiler-rt zlib zstd libffi libedit libxml2 curl perl xz ncurses python)
+provides=(clang compiler-rt libclc lld llvm llvm-libs lldb polly)
+conflicts=(clang compiler-rt libclc lld llvm llvm-libs lldb polly)
+source=(llvm-project::git+https://github.com/llvm/llvm-project.git#commit=ec28b8f9cc7f2ac187d8a617a6d08d5e56f9120e)
+
+build() {
+    cmake -S "$srcdir"/llvm-project/llvm -B _build -G Ninja \
+          -D LLVM_HOST_TRIPLE=$CHOST -D CMAKE_BUILD_TYPE=Release \
+          -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=/usr -D LLVM_BINUTILS_INCDIR=/usr/include \
+          -D LLVM_INSTALL_UTILS=ON -D LLVM_ENABLE_PROJECTS="clang;clang-tools-extra;compiler-rt;libclc;lld;lldb;polly" \
+          -Wno-dev
+    ninja -C _build $NINJAFLAGS
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C _build $NINJAFLAGS install
+    install -d "$pkgdir"/usr/lib/bfd-plugins
+    ln -s ../LLVMgold.so "$pkgdir"/usr/lib/bfd-plugins/LLVMgold.so
+}

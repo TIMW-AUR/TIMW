@@ -1,0 +1,97 @@
+pkgname=kodi-gles-git
+pkgver=21.2
+pkgrel=1
+arch=(x86_64)
+makedepends=(bluez-libs cmake curl dav1d doxygen git glew gperf ghostscript hicolor-icon-theme jdk-openjdk fmt libass libbluray libcdio libcec libgl libmicrohttpd libmodplug libmpeg2 libnfs libpulse libva libvdpau libxrandr libxslt lirc lzo mariadb-libs mesa nasm pipewire python-pycryptodomex python-pillow python-pybluez python-simplejson smbclient sndio spdlog taglib tinyxml swig upower wayland-protocols waylandpp libxkbcommon libinput nlohmann-json)
+depends=(bluez-libs curl dav1d desktop-file-utils exiv2 fmt hicolor-icon-theme lcms2 libass libbluray libcdio libcec libdisplay-info libinput libmicrohttpd libnfs libpipewire libpulse libva libvdpau libxkbcommon libxrandr libxslt lirc mariadb-libs mesa pcre python-pillow python-pycryptodomex python-simplejson rapidjson smbclient sndio spdlog sqlite taglib tinyxml tinyxml2 waylandpp)
+
+_libdvdcss_version="1.4.3-Next-Nexus-Alpha2-2"
+_libdvdnav_version="6.1.1-Next-Nexus-Alpha2-2"
+_libdvdread_version="6.1.3-Next-Nexus-Alpha2-2"
+_crossguid_version="ca1bf4b810e2d188d04cb6286f957008ee1b7681"
+_fstrcmp_version="0.7.D001"
+_flatbuffers_version="23.3.3"
+_libudfread_version="1.1.2"
+
+source=("kodi::git+https://github.com/xbmc/xbmc.git"
+  "libdvdcss-$_libdvdcss_version.tar.gz::https://github.com/xbmc/libdvdcss/archive/refs/tags/$_libdvdcss_version.tar.gz"
+  "libdvdnav-$_libdvdnav_version.tar.gz::https://github.com/xbmc/libdvdnav/archive/refs/tags/$_libdvdnav_version.tar.gz"
+  "libdvdread-$_libdvdread_version.tar.gz::https://github.com/xbmc/libdvdread/archive/refs/tags/$_libdvdread_version.tar.gz"
+  "https://mirrors.kodi.tv/build-deps/sources/crossguid-$_crossguid_version.tar.gz"
+  "https://mirrors.kodi.tv/build-deps/sources/fstrcmp-$_fstrcmp_version.tar.gz"
+  "https://mirrors.kodi.tv/build-deps/sources/flatbuffers-$_flatbuffers_version.tar.gz"
+  "https://mirrors.kodi.tv/build-deps/sources/libudfread-$_libudfread_version.tar.gz")
+
+noextract=(
+  "libdvdcss-$_libdvdcss_version.tar.gz"
+  "libdvdnav-$_libdvdnav_version.tar.gz"
+  "libdvdread-$_libdvdread_version.tar.gz"
+  "crossguid-$_crossguid_version.tar.gz"
+  "fstrcmp-$_fstrcmp_version.tar.gz"
+  "flatbuffers-$_flatbuffers_version.tar.gz"
+  "libudfread-$_libudfread_version.tar.gz"
+)
+
+pkgver() {
+  cd kodi
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  [[ -d "$srcdir/kodi-build" ]] && rm -rf "$srcdir/kodi-build"
+  mkdir "$srcdir/kodi-build"
+
+  cd kodi
+  rm -rf system/certs
+}
+
+build() {
+  _cmake_common_args=(
+    -DAPP_RENDER_SYSTEM=gles
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib
+    -DUSE_LTO=ON
+    -DENABLE_LDGOLD=OFF
+    -DENABLE_INTERNAL_RapidJSON=OFF
+    -DENABLE_INTERNAL_FFMPEG=OFF
+    -DENABLE_INTERNAL_CROSSGUID=ON
+    -DENABLE_INTERNAL_FSTRCMP=ON
+    -DENABLE_INTERNAL_FLATBUFFERS=ON
+    -DENABLE_INTERNAL_UDFREAD=ON
+    -Dlibdvdcss_URL="$srcdir/libdvdcss-$_libdvdcss_version.tar.gz"
+    -Dlibdvdnav_URL="$srcdir/libdvdnav-$_libdvdnav_version.tar.gz"
+    -Dlibdvdread_URL="$srcdir/libdvdread-$_libdvdread_version.tar.gz"
+    -DCROSSGUID_URL="$srcdir/crossguid-$_crossguid_version.tar.gz"
+    -DFSTRCMP_URL="$srcdir/fstrcmp-$_fstrcmp_version.tar.gz"
+    -DFLATBUFFERS_URL="$srcdir/flatbuffers-$_flatbuffers_version.tar.gz"
+    -DUDFREAD_URL="$srcdir/libudfread-$_libudfread_version.tar.gz"
+  )
+
+  cd "$srcdir/kodi-build"
+  cmake \
+    ${_cmake_common_args[@]} \
+    ../kodi
+  make
+}
+
+package() {
+  provides=('kodi-common' 'kodi-x11' 'kodi-wayland' 'kodi-gbm' 'kodi')
+  conflicts=('kodi')
+
+  _components=(
+    'kodi'
+    'kodi-bin'
+  )
+
+  cd kodi-build
+  for _cmp in ${_components[@]}; do
+  DESTDIR="$pkgdir" /usr/bin/cmake \
+    -DCMAKE_INSTALL_COMPONENT="$_cmp" \
+     -P cmake_install.cmake
+  done
+
+  mkdir -p "$pkgdir"/usr/lib/kodi/addons
+  mkdir -p "$pkgdir"/usr/share/kodi/system/certs
+  ln -s /etc/ssl/cert.pem "$pkgdir"/usr/share/kodi/system/certs/cacert.pem
+}
