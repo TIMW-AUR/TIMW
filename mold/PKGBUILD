@@ -1,10 +1,10 @@
 pkgname=mold
-pkgver=2.38.1
+pkgver=2.39.0
 pkgrel=1
 arch=(x86_64)
 depends=(gcc-libs glibc libblake3 mimalloc tbb zlib zstd)
 makedepends=(cmake git mold python)
-source=(mold::git+https://github.com/rui314/mold#commit=954107e29c5b9b2eed111d364415238cf39a6979)
+source=(mold::git+https://github.com/rui314/mold#commit=026fb54b9d0a0fce376ff2c6af8d12182340c2cc)
 
 build() {
   cmake \
