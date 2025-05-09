@@ -1,5 +1,5 @@
 pkgname=librewolf-bin
-pkgver=137.0.2_1
+pkgver=138.0.1_2
 pkgrel=1
 arch=(x86_64)
 _fixedfirefoxver="${pkgver%_*}"
