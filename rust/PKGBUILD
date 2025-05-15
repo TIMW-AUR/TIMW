@@ -1,12 +1,12 @@
 pkgname=rust
-pkgver=1.86.0
+pkgver=1.87.0
 pkgrel=1
 arch=(x86_64)
 makedepends=(aarch64-linux-gnu-gcc aarch64-linux-gnu-glibc clang cmake lib32-gcc-libs lib32-glibc libffi lld llvm musl musl-aarch64 ninja perl python rust wasi-libc wasm-component-ld)
 depends=(bash curl gcc gcc-libs glibc libssh2 llvm-libs openssl zlib)
 provides=(cargo rust-src rustfmt)
 conflicts=(cargo rust-src rustfmt)
-source=(rust::git+https://github.com/rust-lang/rust.git#commit=05f9846f893b09a1be1fc8560e33fc3c815cfecb)
+source=(rust::git+https://github.com/rust-lang/rust.git#commit=17067e9ac6d7ecb70e50f92c1944e545188d2359)
 
 prepare() {
   cd rust
