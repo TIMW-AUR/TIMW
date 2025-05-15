@@ -1,0 +1,22 @@
+pkgname=glslang
+pkgver=15.3.0
+pkgrel=1
+arch=(x86_64)
+makedepends=(cmake ninja spirv-headers python)
+depends=(gcc-libs spirv-tools)
+groups=(vulkan-devel)
+source=(glslang::git+https://github.com/KhronosGroup/glslang.git#commit=fc9889c889561c5882e83819dcaffef5ed45529b)
+
+build() {
+    cmake -S glslang -B _build -G Ninja \
+        -D BUILD_SHARED_LIBS=ON \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_INSTALL_PREFIX=/usr \
+        -D ALLOW_EXTERNAL_SPIRV_TOOLS=ON \
+        -Wno-dev
+    cmake --build _build
+}
+
+package() {
+    DESTDIR="${pkgdir}" cmake --install _build
+}

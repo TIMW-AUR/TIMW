@@ -1,0 +1,22 @@
+pkgname=directx-headers-git
+pkgver=r249.75f1a1f
+pkgrel=1
+arch=(x86_64)
+makedepends=(git meson)
+provides=(directx-headers)
+conflicts=(directx-headers)
+source=(directx-headers::git+https://github.com/microsoft/DirectX-Headers.git)
+
+pkgver() {
+    cd directx-headers
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  arch-meson directx-headers _build --prefix /usr --buildtype release -D build-test=false
+  meson compile -C _build
+}
+
+package() {
+  meson install -C _build --destdir "$pkgdir"
+}
