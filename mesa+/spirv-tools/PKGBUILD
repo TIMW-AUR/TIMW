@@ -1,11 +1,18 @@
-pkgname=spirv-tools
-pkgver=2025.2
+pkgname=spirv-tools-git
+pkgver=2025.2.rc2.r37.g66fe61094
 pkgrel=1
 arch=(x86_64)
 makedepends=(cmake git ninja python spirv-headers)
 depends=(gcc-libs glibc sh)
 groups=(vulkan-devel)
-source=(SPIRV-Tools::git+https://github.com/KhronosGroup/SPIRV-Tools.git#commit=a62abcb402009b9ca5975e6167c09f237f630e0e)
+provides=(spirv-tools)
+conflicts=(spirv-tools)
+source=(SPIRV-Tools::git+https://github.com/KhronosGroup/SPIRV-Tools.git)
+
+pkgver() {
+    cd SPIRV-Tools
+	git describe --long --tags | sed 's/^[^0-9]*//; s/\([^-]*-g\)/r\1/; s/-/./g'
+}
 
 build() {
   cmake -S SPIRV-Tools -B _build -G Ninja \
