@@ -1,12 +1,12 @@
 pkgname=mesa
-pkgver=25.0.6
+pkgver=25.1.0
 pkgrel=1
 arch=(x86_64)
 makedepends=(cbindgen clang cmake directx-headers elfutils expat gcc-libs glibc glslang libclc libdrm libelf libglvnd libpng libva libvdpau libx11 libxcb libxext libxml2 libxrandr libxshmfence libxxf86vm llvm llvm-libs lm_sensors meson python-mako python-packaging python-ply python-yaml rust rust-bindgen spirv-llvm-translator spirv-tools systemd-libs valgrind vulkan-icd-loader wayland wayland-protocols xcb-util-keysyms xorgproto zlib zstd)
 depends=(clang expat gcc-libs glibc libclc libdrm libelf libglvnd libpng libx11 libxcb libxext libxshmfence libxxf86vm llvm-libs lm_sensors python spirv-llvm-translator spirv-tools systemd-libs vulkan-icd-loader wayland xcb-util-keysyms zlib zstd)
 provides=(libva-mesa-driver mesa mesa-libgl mesa-vdpau opengl-driver opencl-driver vulkan-driver vulkan-intel vulkan-mesa-layers vulkan-nouveau vulkan-radeon vulkan-swrast vulkan-virtio)
 conflicts=(libva-mesa-driver mesa mesa-libgl mesa-vdpau opengl-driver opencl-driver vulkan-driver vulkan-intel vulkan-mesa-layers vulkan-nouveau vulkan-radeon vulkan-swrast vulkan-virtio)
-source=(mesa::git+https://gitlab.freedesktop.org/mesa/mesa.git#commit=d0b545b3ef3fccb8961cac35cdcfc929487a54be)
+source=(mesa::git+https://gitlab.freedesktop.org/mesa/mesa.git#commit=5c142e46f3f6e752ed745fd48912ebb8fad67145)
 
 #pkgver() {
 #    cd mesa
