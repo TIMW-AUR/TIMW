@@ -1,11 +1,18 @@
-pkgname=spirv-llvm-translator
-pkgver=20.1.2
+pkgname=spirv-llvm-translator-git
+pkgver=20.1.2.r7.g834db1a19
 pkgrel=1
 arch=(x86_64)
 makedepends=(cmake git llvm ninja spirv-headers)
 depends=(gcc-libs glibc llvm-libs spirv-tools)
 groups=(vulkan-devel)
-source=(SPIRV-LLVM-Translator::git+https://github.com/KhronosGroup/SPIRV-LLVM-Translator.git#commit=6dd8f2a1681a27f16c53d932d2765920f312aeb2)
+provides=(spirv-llvm-translator)
+conflicts=(spirv-llvm-translator)
+source=(SPIRV-LLVM-Translator::git+https://github.com/KhronosGroup/SPIRV-LLVM-Translator.git#branch=llvm_release_200)
+
+pkgver() {
+    cd SPIRV-LLVM-Translator
+	git describe --long --tags | sed 's/^[^0-9]*//; s/\([^-]*-g\)/r\1/; s/-/./g'
+}
 
 build() {
   cmake -S SPIRV-LLVM-Translator -B _build -G Ninja \
