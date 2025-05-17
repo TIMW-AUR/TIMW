@@ -1,10 +1,17 @@
-pkgname=mold
+pkgname=mold-git
 pkgver=2.39.1
 pkgrel=1
 arch=(x86_64)
 depends=(gcc-libs glibc libblake3 mimalloc tbb zlib zstd)
 makedepends=(cmake git mold python)
-source=(mold::git+https://github.com/rui314/mold#commit=7d99824c3d8e2bc8fb1b01bcde248ec87a10497a)
+provides=(mold)
+conflicts=(mold)
+source=(mold::git+https://github.com/rui314/mold)
+
+pkgver() {
+    cd mold
+    git describe --long --tags | sed -E 's/^v//;s/([^-]*-g)/r\1/;s/-/./g'
+}
 
 build() {
   cmake \
