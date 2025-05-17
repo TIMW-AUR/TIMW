@@ -1,12 +1,22 @@
-pkgname=llvm
+pkgname=llvm-git
 pkgver=20.1.5
 pkgrel=1
 arch=(x86_64)
 makedepends=(llvm cmake ninja python python-sphinx python-myst-parser python-setuptools python-psutil swig clang spirv-llvm-translator)
 depends=(gcc-libs llvm-libs gcc compiler-rt zlib zstd libffi libedit libxml2 curl perl xz ncurses python)
-provides=(clang compiler-rt libclc lld llvm llvm-libs lldb polly)
-conflicts=(clang compiler-rt libclc lld llvm llvm-libs lldb polly)
-source=(llvm-project::git+https://github.com/llvm/llvm-project.git#commit=7b09d7b446383b71b63d429b21ee45ba389c5134)
+provides=(clang compiler-rt libclc lld llvm llvm-libs llvm-libs-git lldb polly)
+conflicts=(clang compiler-rt libclc lld llvm llvm-libs llvm-libs-git lldb polly)
+source=(llvm-project::git+https://github.com/llvm/llvm-project.git)
+
+pkgver() {
+    cd llvm-project/cmake/Modules
+    local _pkgver=$(awk -F 'MAJOR |MINOR |PATCH |)' \
+            'BEGIN { ORS="." ; i=0 } \
+             /set\(LLVM_VERSION_/ { print $2 ; i++ ; if (i==2) ORS="" } \
+             END { print "\n" }' \
+             LLVMVersion.cmake)_r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+    echo "$_pkgver"
+}
 
 build() {
     cmake -S "$srcdir"/llvm-project/llvm -B _build -G Ninja \
